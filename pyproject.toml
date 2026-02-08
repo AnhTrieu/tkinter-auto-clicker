@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "windows-autoclicker"
+version = "0.1.0"
+description = "Windows Tkinter auto-clicker with monitor-relative targeting."
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "screeninfo>=0.8,<1.0",
+    "pynput>=1.7,<2.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

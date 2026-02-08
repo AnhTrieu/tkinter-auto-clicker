@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 
 
@@ -18,4 +20,3 @@ class ClickConfig:
     rel_x: int
     rel_y: int
     interval_ms: int
-

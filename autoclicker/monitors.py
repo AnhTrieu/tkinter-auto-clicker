@@ -1,8 +1,15 @@
 from __future__ import annotations
 
-from typing import Iterable
+import hashlib
+from collections.abc import Iterable
 
 from .models import MonitorInfo
+
+
+def _stable_monitor_id(name: str, x: int, y: int, width: int, height: int) -> str:
+    identity = f"{name}|{x}|{y}|{width}|{height}".encode("utf-8")
+    digest = hashlib.blake2s(identity, digest_size=6).hexdigest()
+    return f"monitor-{digest}"
 
 
 def list_monitors() -> list[MonitorInfo]:
@@ -13,15 +20,19 @@ def list_monitors() -> list[MonitorInfo]:
 
     monitors: list[MonitorInfo] = []
     for index, monitor in enumerate(get_monitors()):
-        name = getattr(monitor, "name", None) or f"Monitor {index + 1}"
+        name = str(getattr(monitor, "name", None) or f"Monitor {index + 1}")
+        x = int(monitor.x)
+        y = int(monitor.y)
+        width = int(monitor.width)
+        height = int(monitor.height)
         monitors.append(
             MonitorInfo(
-                id=f"monitor-{index}",
-                name=str(name),
-                x=int(monitor.x),
-                y=int(monitor.y),
-                width=int(monitor.width),
-                height=int(monitor.height),
+                id=_stable_monitor_id(name=name, x=x, y=y, width=width, height=height),
+                name=name,
+                x=x,
+                y=y,
+                width=width,
+                height=height,
                 is_primary=bool(getattr(monitor, "is_primary", False)),
             )
         )

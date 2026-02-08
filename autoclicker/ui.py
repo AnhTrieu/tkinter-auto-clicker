@@ -16,6 +16,9 @@ class _POINT(ctypes.Structure):
     _fields_ = [("x", ctypes.c_long), ("y", ctypes.c_long)]
 
 
+_MAX_INTERVAL_MS = 86_400_000
+
+
 def _get_cursor_position() -> tuple[int, int]:
     if sys.platform != "win32":
         raise OSError("Cursor capture is only supported on Windows.")
@@ -174,11 +177,9 @@ class AutoClickerApp(tk.Tk):
         return self._worker is not None and self._worker.is_alive()
 
     def _build_click_config(self) -> tuple[ClickConfig, MonitorInfo, tuple[int, int]]:
-        self._refresh_monitors(preferred_monitor_id=self._selected_monitor_id())
-
         monitor = self._selected_monitor()
         if monitor is None:
-            raise ValueError("Select a valid monitor.")
+            raise ValueError("Select a valid monitor. Refresh monitors if your display setup changed.")
 
         try:
             rel_x = int(self.rel_x_var.get().strip())
@@ -189,6 +190,8 @@ class AutoClickerApp(tk.Tk):
 
         if interval_ms < 1:
             raise ValueError("Interval must be at least 1 ms.")
+        if interval_ms > _MAX_INTERVAL_MS:
+            raise ValueError(f"Interval must be at most {_MAX_INTERVAL_MS} ms (24 hours).")
 
         config = ClickConfig(
             monitor_id=monitor.id,
@@ -250,7 +253,8 @@ class AutoClickerApp(tk.Tk):
         self._set_running_controls(False)
         if not self._shutting_down:
             if self._stop_event.is_set():
-                self._set_status("Stopped.")
+                if not self.status_var.get().startswith("Worker error:"):
+                    self._set_status("Stopped.")
             else:
                 self._set_status("Idle.")
 
@@ -262,9 +266,8 @@ class AutoClickerApp(tk.Tk):
 
     def _handle_worker_error(self, message: str) -> None:
         self._stop_event.set()
-        self._worker = None
-        self._set_running_controls(False)
         self._set_status(f"Worker error: {message}")
+        self.after(50, self._poll_worker_state)
         if not self._shutting_down:
             messagebox.showerror("Click loop failed", message, parent=self)
 
@@ -276,12 +279,15 @@ class AutoClickerApp(tk.Tk):
             if result is None:
                 raise ValueError("Cursor position is outside the detected monitor bounds.")
             monitor, rel_x, rel_y = result
-        except Exception as exc:  # noqa: BLE001
+            monitor_label = self._monitor_id_to_label.get(monitor.id)
+            if monitor_label is None:
+                raise RuntimeError("Detected monitor is no longer available. Refresh and try again.")
+        except (RuntimeError, OSError, ValueError) as exc:
             self._set_status(f"Capture failed: {exc}")
             messagebox.showerror("Capture failed", str(exc), parent=self)
             return
 
-        self.monitor_var.set(self._monitor_id_to_label[monitor.id])
+        self.monitor_var.set(monitor_label)
         self.rel_x_var.set(str(rel_x))
         self.rel_y_var.set(str(rel_y))
         self._set_status(f"Captured cursor on {monitor.name}: ({rel_x}, {rel_y}).")
@@ -311,4 +317,3 @@ class AutoClickerApp(tk.Tk):
             self._hotkey = None
 
         self.destroy()
-

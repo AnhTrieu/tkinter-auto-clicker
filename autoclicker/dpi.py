@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import ctypes
 import sys
 
@@ -37,4 +39,3 @@ def set_dpi_awareness() -> str:
         pass
 
     return "dpi-awareness-unavailable"
-
