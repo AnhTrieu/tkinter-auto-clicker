@@ -3,7 +3,7 @@
 block_cipher = None
 
 a = Analysis(
-    ['autoclicker/__main__.py'],
+    ['tkinter-autoclicker/__main__.py'],
     pathex=[],
     binaries=[],
     datas=[],
@@ -14,6 +14,7 @@ a = Analysis(
         'pynput.keyboard',
         'pynput.mouse',
     ],
+    collectall=["tkinter-autoclicker","dpi","click_engine","hotkey","models","monitors","ui"],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -33,7 +34,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='WindowsAutoClicker',
+    name='TkinterAutoClicker',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

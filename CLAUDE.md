@@ -16,7 +16,7 @@ Windows Tkinter Auto Clicker — GUI tool for automating mouse clicks with multi
 - `autoclicker/models.py` — Frozen dataclasses (`MonitorInfo`, `ClickConfig`)
 - `autoclicker/monitors.py` — Monitor enumeration, coordinate conversion (relative ↔ absolute)
 - `autoclicker/ui.py` — Tkinter GUI (extends `tk.Tk`), main application class
-- `autoclicker/click_engine.py` — Click worker thread, Win32 API right-click injection
+- `autoclicker/click_engine.py` — Click worker thread, Win32 API left-click injection
 - `autoclicker/hotkey.py` — Global F8 hotkey via pynput listener
 - `autoclicker/dpi.py` — Windows DPI awareness setup with fallback chain
 - `tests/` — pytest tests for coordinate conversion and worker threading
