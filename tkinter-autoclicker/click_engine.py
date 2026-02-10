@@ -8,8 +8,8 @@ from collections.abc import Callable
 
 _INPUT_MOUSE = 0
 _MOUSEEVENTF_MOVE = 0x0001
-_MOUSEEVENTF_RIGHTDOWN = 0x0008
-_MOUSEEVENTF_RIGHTUP = 0x0010
+_MOUSEEVENTF_LEFTDOWN = 0x0002
+_MOUSEEVENTF_LEFTUP = 0x0004
 _MOUSEEVENTF_VIRTUALDESK = 0x4000
 _MOUSEEVENTF_ABSOLUTE = 0x8000
 
@@ -92,10 +92,10 @@ def _send_mouse_input(
         raise ctypes.WinError()
 
 
-def send_right_click(abs_x: int, abs_y: int) -> None:
-    """Move and right-click at absolute screen coordinates using SendInput."""
+def send_left_click(abs_x: int, abs_y: int) -> None:
+    """Move and left-click at absolute screen coordinates using SendInput."""
     if sys.platform != "win32":
-        raise OSError("Right-click injection is supported only on Windows.")
+        raise OSError("Left-click injection is supported only on Windows.")
 
     user32 = ctypes.windll.user32
     _configure_user32(user32)
@@ -109,7 +109,7 @@ def send_right_click(abs_x: int, abs_y: int) -> None:
         flags=_MOUSEEVENTF_MOVE
         | _MOUSEEVENTF_ABSOLUTE
         | _MOUSEEVENTF_VIRTUALDESK
-        | _MOUSEEVENTF_RIGHTDOWN,
+        | _MOUSEEVENTF_LEFTDOWN,
         dx=normalized_x,
         dy=normalized_y,
     )
@@ -118,7 +118,7 @@ def send_right_click(abs_x: int, abs_y: int) -> None:
         flags=_MOUSEEVENTF_MOVE
         | _MOUSEEVENTF_ABSOLUTE
         | _MOUSEEVENTF_VIRTUALDESK
-        | _MOUSEEVENTF_RIGHTUP,
+        | _MOUSEEVENTF_LEFTUP,
         dx=normalized_x,
         dy=normalized_y,
     )
@@ -132,7 +132,7 @@ class ClickWorker(threading.Thread):
         interval_ms: int,
         stop_event: threading.Event,
         on_error: Callable[[Exception], None] | None,
-        click_fn: Callable[[int, int], None] = send_right_click,
+        click_fn: Callable[[int, int], None] = send_left_click,
     ) -> None:
         super().__init__(name="ClickWorker", daemon=True)
         if interval_ms < 1:

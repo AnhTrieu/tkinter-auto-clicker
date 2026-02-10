@@ -32,7 +32,7 @@ def _get_cursor_position() -> tuple[int, int]:
 class AutoClickerApp(tk.Tk):
     def __init__(self, dpi_mode: str) -> None:
         super().__init__()
-        self.title("Windows 11 Auto Clicker")
+        self.title("Tkinter Auto Clicker")
         self.resizable(False, False)
 
         self._dpi_mode = dpi_mode
@@ -224,7 +224,7 @@ class AutoClickerApp(tk.Tk):
         self._worker.start()
         self._set_running_controls(True)
         self._set_status(
-            "Running right-click loop on "
+            "Running left-click loop on "
             f"{monitor.name} at ({config.rel_x}, {config.rel_y}) every {config.interval_ms} ms."
         )
         self.after(100, self._poll_worker_state)
